@@ -34,22 +34,39 @@ public class CryptoConversionController {
 	//localhost:8100/currency-conversion/from/EUR/to/RSD/quantity/100
 	@GetMapping("/crypto-conversion/from/{from}/to/{to}/quantity/{quantity}")
 	@RateLimiter(name="default")
-	public CryptoConversion getConversion
-		(@PathVariable String from, @PathVariable String to, @PathVariable double quantity) {
-		
-		HashMap<String,String> uriVariables = new HashMap<String,String>();
-		uriVariables.put("from", from);
-		uriVariables.put("to", to);
-		
-		ResponseEntity<CryptoConversion> response = 
-				new RestTemplate().
-				getForEntity("http://localhost:8400/crypto-exchange/from/{from}/to/{to}",
-						CryptoConversion.class, uriVariables);
-		
-		CryptoConversion cc = response.getBody();
-		
-		return new CryptoConversion(from,to,cc.getConversionMultiple(), cc.getEnvironment(), quantity,
-				cc.getConversionMultiple().multiply(BigDecimal.valueOf(quantity)));
+	public ResponseEntity<?> getConversion(@PathVariable String from, @PathVariable String to, @PathVariable double quantity, @RequestHeader("Authorization") String authorizationHeader) {
+	    try {
+	        String role = userServiceProxy.extractRole(authorizationHeader);
+	        String email = userServiceProxy.getEmailOfCurrentUser(authorizationHeader);
+	        
+	        if ("USER".equals(role)) {
+	            boolean possible = cryptoWalletProxy.getConversionPosibility(email, BigDecimal.valueOf(quantity), from);
+	            if (possible) {
+	                ResponseEntity<CryptoConversion> response = cryptoExchangeProxy.getExchange(from, to);
+	                CryptoConversion responseBody = response.getBody();
+	                
+	                BigDecimal result = responseBody.getConversionMultiple().multiply(BigDecimal.valueOf(quantity));
+	                
+	                cryptoWalletProxy.updateCurrencyAmount(email, to, result);
+	                
+	                CryptoWalletDto walletDto = cryptoWalletProxy.getCryptoWalletByEmail(email);
+	                
+	                HashMap<String, Object> responseMap = new HashMap<>();
+	                responseMap.put("cryptoConversion", responseBody);
+	                responseMap.put("message", "Uspešno je izvršena razmena " + quantity + " " + from + " za " + to);
+	                
+	                return ResponseEntity.ok(responseMap);
+	            } else {
+	                String errorMessage = "Korisnik nema dovoljno sredstava za razmenu.";
+	                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+	            }
+	        } else {
+	            String errorMessage = "Korisnik koji nije User ne može da izvrši razmenu.";
+	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
+	        }
+	    } catch (FeignException e) {
+	        return ResponseEntity.status(e.status()).body(e.getMessage());
+	    }
 	}
 	
 	@GetMapping("/crypto-conversion-feign")
