@@ -1,0 +1,43 @@
+NAMING-SERVER 		http://localhost:8761/
+
+USER-SERVICE
+GET 			http://localhost:8770/users-service/users
+POST 			http://localhost:8770/users-service/users
+PUT 			http://localhost:8770//users-service/users/1
+DELETE 			http://localhost:8770/users-service/users/1
+GET BY EMAIL 		http://localhost:8770/users-service/user/saska@gmail.com
+GET ROLE BY EMAIL 	http://localhost:8770/users-service/user/role/saska@gmail.com
+
+BANK-ACCOUNT
+GET 			http://localhost:8200/bank-account/accounts
+GET BY EMAIL		http://localhost:8200/bank-account/accounts/milica_popin@gmail.com
+GET EXIST		http://localhost:8200/bank-account/accounts/milica_popin@gmail.com
+POST			http://localhost:8200/bank-account/accounts
+PUT			http://localhost:8200/bank-account/accounts/milica_popin@gmail.com
+PUT NEW EMAIL		http://localhost:8200/bank-account/accounts/email/milica_popin@gmail.com/new/milica_nikolic@gmail.com
+DELETE 			http://localhost:8200/bank-account/accounts/gojko_jankovic@gmail.com
+
+CRYPTO-CONVERSION 
+GET 			http://localhost:8500/crypto-conversion/from/ETH/to/BTC/quantity/5
+
+CRYPTO-EXCHANGE 	
+GET 			http://localhost:8400/crypto-exchange/from/ETH/to/BTC
+
+CRYPTO-WALLET 
+GET			http://localhost:8300/crypto-wallet/wallets
+GET BY EMAIL		http://localhost:8300/crypto-wallet/wallets/gojko_jankovic@gmail.com
+GET EXIST STATUS	http://localhost:8300/crypto-wallet/wallets/exists/gojko_jankovic@gmail.com
+POST 			http://localhost:8300/crypto-wallet/wallets
+PUT 			http://localhost:8300/crypto-wallet/wallets/gojko_jankovic@gmail.com
+PUT NEW EMAIL		http://localhost:8300/crypto-wallet/wallets/gojko_jankovic@gmail.com
+/new/gojko@gmail.com	
+DELETE 			http://localhost:8300/crypto-wallet/wallets/gojko_jankovic@gmail.com
+
+CURRENCY-CONVERSION
+GET			http://localhost:8100/currency-conversion/from/EUR/to/RSD/quantity/50
+
+CURRENCY-EXCHANGE 	http://localhost:8000/currency-exchange/from/EUR/to/RSD
+
+TRADE-SERVICE 		http://localhost:8600/trade-service-feign?from=EUR&to=BTC&quantity=1000
+
+TRANSFER-SERVICE 	http://localhost:8700/transfer-service-feign?currency=EUR&to=milica_popin@gmail.com&quantity=100
